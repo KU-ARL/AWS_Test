@@ -4,7 +4,6 @@ from flask import Blueprint, flash, jsonify, redirect, request, render_template,
 from utils.auth_utils import validate_session
 from utils.imageFile_utils import allowed_file
 
-from AI.classificationAI_test import running_AI
 
 uploadPage_bp = Blueprint("upload", __name__)
 UPLOAD_FOLDER = 'images'  # 서버에 이미지가 저장될 폴더
@@ -54,7 +53,7 @@ def upload_image():
             file.save(filepath)
 
             # AI 모델 실행
-            result = list(running_AI(file))  # set을 list로 변환
+            result = ["SMC","99.99%"]  # set을 list로 변환
 
             return jsonify({"result": 2, "confidence": result[0], "artist": result[1]})
         else:
