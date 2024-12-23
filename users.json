@@ -1,0 +1,10 @@
+{
+    "admin": {
+        "username": "\ucd5c\uaddc\ud638",
+        "password": "1234"
+    },
+    "test": {
+        "username": "test",
+        "password": "1234"
+    }
+}

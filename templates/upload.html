@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+</head>
+<body>
+    <h1>이미지 업로드</h1>
+
+    <p>현재 세션 ID: {{ session_id }}</p>
+
+    <!-- 이미지 업로드 폼 -->
+    <form action="{{ url_for('upload.upload_image') }}" method="POST" enctype="multipart/form-data">
+        <label for="image">이미지 파일 선택 (JPG 형식):</label><br>
+        <input type="file" id="image" name="image" accept=".jpg, .jpeg" required><br><br>
+        <button type="submit">시작하기</button>
+    </form>
+
+    <form method="GET" action="/logout">
+        <p>로그인 상태입니다.</p>
+        <button type="submit">로그아웃</button>
+    </form>
+
+    <!-- JavaScript 파일 -->
+    <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>
