@@ -14,6 +14,7 @@ def load_session():
     print("load_session 실행")
     session_id = request.cookies.get("session_id")
     session_valid, result = validate_session(session_id)
+    print(session_id,session_valid,result)
 
     if result == 0:
         return jsonify({"result": 0})  # 세션 없음
