@@ -44,7 +44,7 @@ def login():
 
             # 쿠키에 세션 ID 설정
             response = make_response(redirect(url_for("upload.upload_image")))
-            response.set_cookie("session_id", session_id, httponly=True, secure=True)
+            response.set_cookie("session_id", session_id, httponly=True, secure=False)
 
             flash("로그인 성공!", "success")
             return response

@@ -54,7 +54,7 @@ def upload_image():
             file.save(filepath)
 
             # AI 모델 실행
-            result = ["SMC","99.99%"]  # set을 list로 변환
+            result = ["99.99","Shin Min Chul"]  #AI 코드 수정
 
             return jsonify({"result": 2, "confidence": result[0], "artist": result[1]})
         else:
