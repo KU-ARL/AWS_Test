@@ -1,30 +1,14 @@
+import datetime
+import json
 import os
-from flask import Blueprint, flash, jsonify, redirect, request, render_template, current_app, url_for
+from flask import Blueprint, jsonify, request, render_template, current_app
 
-from utils.auth_utils import validate_session
 from utils.imageFile_utils import allowed_file
 
+from AI.classificationAI_test import running_AI
 
 uploadPage_bp = Blueprint("upload", __name__)
 UPLOAD_FOLDER = 'images'  # 서버에 이미지가 저장될 폴더
-
-
-@uploadPage_bp.before_request
-def load_session():
-    print("load_session 실행")
-    session_id = request.cookies.get("session_id")
-    session_valid, result = validate_session(session_id)
-    print(session_id,session_valid,result)
-
-    if result == 0:
-        return jsonify({"result": 0})  # 세션 없음
-
-    if result == 2:
-        return jsonify({"result": 2}) # 세션 만료
-
-    if session_valid:
-        return  # 세션이 유효할 경우 계속 진행
-
 
 
 # 이미지 업로드 페이지
@@ -49,12 +33,29 @@ def upload_image():
             # 폴더가 없다면 생성
             os.makedirs(upload_folder, exist_ok=True)
 
-            # 파일 저장
-            filepath = os.path.join(upload_folder, file.filename)
+            # 클라이언트 쿠키에서 session_id 가져오기
+            session_id = request.cookies.get('session_id')
+
+            # 서버에 저장된 sessions.json 파일에서 사용자 ID 조회
+            sessions_file = os.path.join(current_app.root_path, 'sessions.json')
+
+            with open(sessions_file, 'r') as f:
+                sessions = json.load(f)
+            session_data = sessions.get(session_id)
+
+            if session_data:
+                user_id = session_data.get('user_id')
+            else: 
+                return jsonify({"result": 4})
+
+            # 저장 파일명 생성 (저장 시각 + user_id)
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{timestamp}_{user_id}.jpg"
+            filepath = os.path.join(upload_folder, filename)
             file.save(filepath)
 
             # AI 모델 실행
-            result = ["99.99","Shin Min Chul"]  #AI 코드 수정
+            result = list(running_AI(file))  # set을 list로 변환
 
             return jsonify({"result": 2, "confidence": result[0], "artist": result[1]})
         else:

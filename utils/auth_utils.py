@@ -1,18 +1,23 @@
+import datetime
 import json
 import os
 import time
 import uuid
 
-from flask import make_response, redirect, url_for
+from flask import current_app
 
 # 회원가입 파일 경로
 USERS_FILE_PATH = "users.json"
 # 세션 관리 파일 경로
 SESSIONS_FILE_PATH = "sessions.json"
+# 로그인 로그 파일 경로
+LOG_FILE_PATH = "login_logout_log.txt"
+
+
 # 세션 만료 시간 (5분)
 # SESSION_EXPIRY = 5 * 60  # 초 단위
-# 세션 만료 시간 (20초)
-SESSION_EXPIRY = 5*60  # 초 단위
+# 세션 만료 시간 (30초)
+SESSION_EXPIRY = 10  # 초 단위
 
 # JSON 파일 초기화
 def initialize_json(file_path, default_data):
@@ -78,13 +83,6 @@ def delete_session(session_id):
 
 
 def validate_session(session_id):
-    """
-    세션 유효성 검사 및 만료 처리.
-    - session_id가 비어 있으면 False와 result 0 반환.
-    - 세션 파일에서 만료된 세션을 삭제.
-    - session_id가 유효하면 True와 result 1 반환.
-    """
-    print("validate 함수 실행")
     # 세션 파일 초기화
     initialize_json(SESSIONS_FILE_PATH, {})
 
@@ -94,7 +92,6 @@ def validate_session(session_id):
 
     # 세션 ID가 없으면 바로 반환
     if not session_id:
-        print("no session id 실행")
         return False, 0
 
     # 현재 시간
@@ -111,6 +108,21 @@ def validate_session(session_id):
         else:
             # 만료된 세션 삭제
             if sid == session_id:
+
+                # 사용자 ID 조회
+                sessions_file = os.path.join(current_app.root_path, 'sessions.json')
+
+                with open(sessions_file, 'r') as f:
+                    sessions = json.load(f)
+                session_data = sessions.get(session_id)
+
+                # user_id 추출
+                user_id = session_data.get('user_id')
+
+                # 로그아웃 성공 로그 기록
+                log_user_activity("세션만료", user_id=user_id, success=True)
+
+                
                 result = 2  # 세션 만료
 
     # 유효한 세션만 다시 저장
@@ -123,3 +135,22 @@ def validate_session(session_id):
         result = 1  # 세션 유효
 
     return session_valid, result
+
+
+
+
+# 로그인 로그 관리
+def log_user_activity(action, user_id=None, success=None):
+
+    timestamp = datetime.datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
+    user_id = user_id or "Unknown"
+    status = ""
+
+    if success is not None:
+        status = "성공" if success else "실패"
+
+    log_message = f'{timestamp} "{user_id}" {action} {status}\n'
+
+    with open(LOG_FILE_PATH, "a", encoding="utf-8") as file:
+        file.write(log_message)
+
