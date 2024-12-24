@@ -20,7 +20,7 @@ def login():
 
             # 쿠키에 세션 ID 설정
             response = make_response(jsonify({"result": 1}))  # 로그인 성공
-            response.set_cookie("session_id", session_id, httponly=True, secure=True)
+            response.set_cookie("session_id", session_id, httponly=True, secure=False)
 
             print("로그인 성공: 세션 ID 생성 완료")
             return response
